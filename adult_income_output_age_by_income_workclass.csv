@@ -1,0 +1,16 @@
+income,workclass,age
+<=50k,federal-gov,40.55683122847302
+<=50k,local-gov,40.576278859212316
+<=50k,never-worked,19.9
+<=50k,private,35.5275875124772
+<=50k,self-emp-inc,43.27344782034346
+<=50k,self-emp-not-inc,44.80430879712747
+<=50k,state-gov,37.37353549276361
+<=50k,without-pay,46.26315789473684
+>50k,federal-gov,45.71479500891265
+>50k,local-gov,44.29665587918015
+>50k,private,43.31024568740199
+>50k,self-emp-inc,47.83795309168443
+>50k,self-emp-not-inc,46.69823584029712
+>50k,state-gov,45.367924528301884
+>50k,without-pay,57.0
