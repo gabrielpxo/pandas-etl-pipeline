@@ -2,9 +2,8 @@ import pandas as pd
 import numpy as np
 import json
 
-# -------------------------------------------------------------------
-# 1. Extração
-# -------------------------------------------------------------------
+# Extração
+
 def load_data(filepath):
     # Carregar o dataset
     df = pd.read_csv(filepath, encoding="utf-8")
@@ -21,9 +20,8 @@ def inspect_data(df):
     print("Colunas categóricas:", categorical_cols)
     return numeric_cols, categorical_cols
 
-# -------------------------------------------------------------------
-# 2. Limpeza
-# -------------------------------------------------------------------
+# Limpeza
+
 def clean_data(df):
     # Substituir '?' por NaN
     df = df.replace('?', pd.NA)
@@ -50,9 +48,8 @@ def clean_data(df):
     df.columns = [col.replace('-', '_').lower() for col in df.columns]
     return df
 
-# -------------------------------------------------------------------
-# 3. Transformações
-# -------------------------------------------------------------------
+# Transformações
+
 def transform_data(df):
     # Criar novas variáveis derivadas
     # 1. Faixa etária (não usa apply, mas é uma das três novas)
@@ -66,18 +63,17 @@ def transform_data(df):
     # 3. Indicador binário de renda (usa apply)
     df['income_binary'] = df['income'].apply(lambda x: 1 if x == '>50k' else 0)
 
-    # 4. Exemplo extra: razão capital-gain / (capital-loss+1) (usa apply)
+    # 4. razão capital-gain / (capital-loss+1) (usa apply)
     df['capital_ratio'] = df.apply(
         lambda row: row['capital_gain'] / (row['capital_loss'] + 1) if row['capital_loss'] > 0 else row['capital_gain'],
         axis=1
     )
     return df
 
-# -------------------------------------------------------------------
 # 4. Integração com merge (tabela auxiliar)
-# -------------------------------------------------------------------
+
 def create_aux_table():
-    """Cria tabela auxiliar com categorias de escolaridade."""
+    # Cria tabela auxiliar com categorias de escolaridade
     edu_mapping = {
         1: 'preschool', 2: '1st-4th', 3: '5th-6th', 4: '7th-8th', 5: '9th',
         6: '10th', 7: '11th', 8: '12th', 9: 'hs-grad', 10: 'some-college',
@@ -89,15 +85,14 @@ def create_aux_table():
     return aux_df
 
 def merge_aux(df, aux_df):
-    """Junta a tabela principal com a auxiliar pela escolaridade numérica."""
+    # Junta a tabela principal com a auxiliar pela escolaridade numérica
     df = df.merge(aux_df, on='educational_num', how='left')
     return df
 
-# -------------------------------------------------------------------
 # 5. Análises com groupby
-# -------------------------------------------------------------------
+
 def groupby_analyses(df):
-    """Executa pelo menos 4 análises agregadas, uma delas com agg()."""
+    # Executa pelo menos 4 análises agregadas, uma delas com agg()
     analyses = {}
 
     # 1. Média de idade por renda e classe de trabalho
@@ -118,11 +113,10 @@ def groupby_analyses(df):
 
     return analyses
 
-# -------------------------------------------------------------------
 # 6. Tabelas dinâmicas
-# -------------------------------------------------------------------
+
 def pivot_analysis(df):
-    """Cria duas tabelas dinâmicas com pivot_table."""
+    # Cria duas tabelas dinâmicas com pivot_table
     # Pivot 1: renda nas linhas, categoria educacional nas colunas, contagem de indivíduos
     pivot1 = pd.pivot_table(df, values='age', index='income', columns='education_category',
                             aggfunc='count', fill_value=0)
@@ -133,15 +127,14 @@ def pivot_analysis(df):
 
     return pivot1, pivot2
 
-# -------------------------------------------------------------------
 # 7. Exportação
-# -------------------------------------------------------------------
+
 def export_data(df, analyses, pivots, output_prefix):
-    """Exporta os resultados para CSV e JSON."""
+    # Exporta os resultados para CSV e JSON
     # Base final tratada
     df.to_csv(f"{output_prefix}_cleaned.csv", index=False)
 
-    # Resumos analíticos em CSV
+    # Resumos de analise em CSV
     analyses['age_by_income_workclass'].to_csv(f"{output_prefix}_age_by_income_workclass.csv", index=False)
     analyses['count_by_edu_income'].to_csv(f"{output_prefix}_count_by_edu_income.csv", index=False)
     analyses['hours_by_marital_income'].to_csv(f"{output_prefix}_hours_by_marital_income.csv", index=False)
@@ -156,16 +149,15 @@ def export_data(df, analyses, pivots, output_prefix):
     with open(f"{output_prefix}_summary.json", 'w') as f:
         json.dump(analyses['age_by_income_workclass'].to_dict(orient='records'), f)
 
-# -------------------------------------------------------------------
-# 8. Função principal (ETL completo)
-# -------------------------------------------------------------------
+# 8. Função principal
+
 def main():
     # Extração
     print("=== EXTRAÇÃO ===")
     df = load_data('adult.csv')
     numeric_cols, categorical_cols = inspect_data(df)
 
-    # Transformação (limpeza, transformações, integração)
+    # Transformação
     print("\n=== LIMPEZA ===")
     df = clean_data(df)
     print("Valores nulos após limpeza:\n", df.isnull().sum())
